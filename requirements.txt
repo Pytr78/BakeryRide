@@ -1,0 +1,11 @@
+streamlit
+pandas
+requests
+gpxpy
+shapely>=2.0
+pyproj
+folium
+streamlit-folium
+timezonefinder
+pytz
+
