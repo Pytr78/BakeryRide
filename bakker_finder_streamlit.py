@@ -114,16 +114,22 @@ def overpass_pois_in_bbox(bbox: Tuple[float, float, float, float]) -> List[Dict]
     );
     out center tags;
     """
-    url = "https://overpass-api.de/api/interpreter"
+    endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://lz4.overpass-api.de/api/interpreter",
+        "https://z.overpass-api.de/api/interpreter",
+    ]
+    headers = {"User-Agent": "BakeryRide/1.0 (bakery route POI finder)"}
     last_err = None
-    for attempt in range(3):
+    for attempt in range(len(endpoints) * 2):
+        url = endpoints[attempt % len(endpoints)]
         try:
-            r = requests.post(url, data={"data": query}, timeout=90)
+            r = requests.post(url, data={"data": query}, headers=headers, timeout=90)
             r.raise_for_status()
             return r.json().get("elements", [])
         except RequestException as e:
             last_err = e
-            time.sleep(1.5 * (attempt + 1))
+            time.sleep(2.0 * (attempt % len(endpoints) + 1))
     raise RuntimeError(f"Overpass-fout na retries: {last_err}")
 
 def element_to_point_and_type(elem: Dict) -> Tuple[Point, Dict, str]:
